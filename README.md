@@ -3,7 +3,7 @@ This project was to re-implement the algorithm written in this paper: https://ar
 The idea of the project is to detect face(s) at different view and/or partly occluded faces.
 
 # Built with
-Python 2.7
-Matlab
+Python 2.7 <br />
+Matlab <br />
 Caffe
 
