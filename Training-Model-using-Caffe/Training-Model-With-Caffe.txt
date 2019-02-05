@@ -1,0 +1,48 @@
+Run makingData to create dataset for faces and nonfaces, if more than 2 sets (Faces or nonfaces) then manually adjust MakingData.
+
+Run Makinglabel afterward to create .txt file assign images to corresponding labels. Adjust code if need in case having more than 2 labels, 2 dataset.
+
+cd CAFFEROOT$
+convert image to lmdb (optional), adjust backend in .prototxt file is followed after that.
+#to run convert_imageset, providing SOURCE, Label.txt file, output (remember this folder should never existed before, delete if there is the case)
+build\tools\Release\convert_imageset --shuffle C:\Needs\AFLW\data\ E:\AFLW\aflw-matlab\Nam\train.txt  E:\AFLW\data\lmdb\train_lmdb
+build\tools\Release\convert_imageset --shuffle C:\Needs\AFLW\data\ E:\AFLW\aflw-matlab\Nam\valid.txt  E:\AFLW\data\lmdb\valid_lmdb
+
+build\tools\Release\convert_imageset E:\AFLW\data\ E:\AFLW\aflw-matlab\Nam\train.txt  E:\AFLW\data\lmdb2\train_lmdb
+
+build\tools\Release\convert_imageset E:\AFLW\data\ E:\AFLW\aflw-matlab\Nam\valid.txt  E:\AFLW\data\lmdb2\valid_lmdb
+
+compute image means
+build\tools\Release\compute_image_mean E:\AFLW\data\lmdb2\train_lmdb E:\AFLW\data\mean\mean_image.binaryproto
+
+training
+
+cd C:\MultiviewFaceDetection\FaceDetection_CNN-master
+cd C:\MultiviewFaceDetection\FaceDetection_CNN-master\AlexNet
+
+C:\caffe\build\tools\Release\caffe train -solver C:\MultiviewFaceDetection\FaceDetection_CNN-master\my_solver.prototxt -weights C:\MultiviewFaceDetection\alexNet__iter_60000.caffemodel -gpu 0
+
+C:\caffe\build\tools\Release\caffe train -solver my_solver.prototxt -weights C:\MultiviewFaceDetection\bvlc_alexnet.caffemodel -gpu 0 2>&1 | tee trainlog.txt
+
+C:\caffe\build\tools\Release\caffe train -solver my_solver.prototxt -weights C:\MultiviewFaceDetection\alexNet__iter_60000.caffemodel -gpu 0 2>&1 | tee trainlog.txt
+ 
+C:\caffe\build\tools\Release\caffe train -solver my_solver.prototxt -gpu 0 2>&1 | tee trainlog.txt
+
+FOR EVALUATION
+
+Finetuning the weight got from above steps with Evaluation Data
+
+Run MakingData_Evaluation to create dataset for faces and nonfaces, if more than 2 sets (Faces or nonfaces) then manually adjust MakingData.
+
+Run Makinglabel_Evaluation afterward to create .txt file assign images to corresponding labels. Adjust code if need in case having more than 2 labels, 2 dataset.
+
+Run LMDB_MAKING_evaluation.bat (edit it if need)
+
+C:
+
+cd C:\MultiviewFaceDetection\FaceDetection_CNN-master\AlexNet
+
+C:\caffe\build\tools\Release\caffe train -solver my_solver2_evaluation.prototxt -weights C:\MultiviewFaceDetection\FaceDetection_CNN-master\AlexNet\alexNet2_finetunned_iter_55000.caffemodel -gpu 0 2>&1 | tee EvaluationTrainingLog.txt
+ 
+compute image means
+C:\caffe\build\tools\Release\compute_image_mean E:\AFLW\data\lmdb_evaluation\train_lmdb E:\AFLW\data\mean\mean_image_evaluation.binaryproto
